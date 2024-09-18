@@ -53,13 +53,13 @@ def recommended_news():
     return jsonify({"error": "user_id parameter is required"}), 400
   
   try:
-    candidate_news = news_service.get_candidate_news()
+    candidate_news = news_service.get_candidate_news(user_id)
     clicked_news = news_service.get_clicked_news(user_id)
   except Exception as e:
     return jsonify({"error": str(e)}), 500
   
   if candidate_news is None or clicked_news is None:
-    return jsonify({"error": "Failed to retrieve clicked news"}), 500
+    return jsonify({"error": "Failed to retrieve news"}), 500
 
   try:
     with session.as_default():

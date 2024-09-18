@@ -21,7 +21,7 @@ class NewsService:
             print(f"Error while connecting to MySQL: {e}")
             return None
 
-    def get_candidate_news(self):
+    def get_candidate_news(self, user_id):
         connection = self._connect()
         
         if connection is None:
@@ -30,11 +30,13 @@ class NewsService:
         try:
             cursor = connection.cursor()
             query = """
-                SELECT id, title
-                FROM news
-                WHERE publish_date >= (SELECT MAX(publish_date) FROM news) - INTERVAL 1 DAY;
+                SELECT n.id, n.title
+                FROM news n
+                LEFT JOIN news_click_log nc ON n.id = nc.news_id AND nc.user_id = %s
+                WHERE nc.news_id IS NULL
+                AND n.publish_date >= (SELECT MAX(publish_date) FROM news) - INTERVAL 1 DAY;
             """
-            cursor.execute(query)
+            cursor.execute(query, (user_id,))
             return cursor.fetchall()
 
         except Error as e:
