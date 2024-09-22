@@ -49,11 +49,19 @@ except Exception as e:
 @app.route('/recommended-news', methods=['GET'])
 def recommended_news():
   user_id = request.args.get('user_id')
+  category = request.args.get('category')
+  
+  missing_params = []
   if not user_id:
-    return jsonify({"error": "user_id parameter is required"}), 400
+      missing_params.append("user_id")
+  if not category:
+      missing_params.append("category")
+
+  if missing_params:
+      return jsonify({"error": f"Missing parameters: {', '.join(missing_params)}"}), 400
   
   try:
-    candidate_news = news_service.get_candidate_news(user_id)
+    candidate_news = news_service.get_candidate_news(user_id, category)
     clicked_news = news_service.get_clicked_news(user_id)
   except Exception as e:
     return jsonify({"error": str(e)}), 500
